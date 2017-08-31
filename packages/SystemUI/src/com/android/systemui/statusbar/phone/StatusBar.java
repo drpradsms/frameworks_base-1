@@ -235,6 +235,7 @@ import com.android.systemui.statusbar.policy.DarkIconDispatcher;
 import com.android.systemui.statusbar.policy.DeviceProvisionedController;
 import com.android.systemui.statusbar.policy.DeviceProvisionedController.DeviceProvisionedListener;
 import com.android.systemui.statusbar.policy.ExtensionController;
+import com.android.systemui.statusbar.policy.FlashlightController;
 import com.android.systemui.statusbar.policy.HeadsUpManager;
 import com.android.systemui.statusbar.policy.HeadsUpUtil;
 import com.android.systemui.statusbar.policy.KeyguardMonitor;
@@ -599,6 +600,7 @@ public class StatusBar extends SystemUI implements DemoMode, TunerService.Tunabl
         }
     };
 
+    private FlashlightController mFlashlightController;
     private KeyguardUserSwitcher mKeyguardUserSwitcher;
     protected UserSwitcherController mUserSwitcherController;
     private NetworkController mNetworkController;
@@ -1166,6 +1168,8 @@ public class StatusBar extends SystemUI implements DemoMode, TunerService.Tunabl
 
         // Private API call to make the shadows look better for Recents
         ThreadedRenderer.overrideProperty("ambientRatio", String.valueOf(1.5f));
+
+        mFlashlightController = Dependency.get(FlashlightController.class);
     }
 
     private void initCoreOverlays(){
@@ -2500,6 +2504,16 @@ public class StatusBar extends SystemUI implements DemoMode, TunerService.Tunabl
                 || getNavigationBarView().isRecentsButtonVisible());
     }
 
+    @Override
+    public void toggleCameraFlash() {
+        if (DEBUG) {
+            Log.d(TAG, "Toggling camera flashlight");
+        }
+        if (mFlashlightController.isAvailable()) {
+            mFlashlightController.setFlashlight(!mFlashlightController.isEnabled());
+        }
+    }
+
     boolean panelsEnabled() {
         return (mDisabled1 & StatusBarManager.DISABLE_EXPAND) == 0
                 && (mDisabled2 & StatusBarManager.DISABLE2_NOTIFICATION_SHADE) == 0
@@ -3122,6 +3136,10 @@ public class StatusBar extends SystemUI implements DemoMode, TunerService.Tunabl
         pw.println("SharedPreferences:");
         for (Map.Entry<String, ?> entry : Prefs.getAll(mContext).entrySet()) {
             pw.print("  "); pw.print(entry.getKey()); pw.print("="); pw.println(entry.getValue());
+        }
+
+        if (mFlashlightController != null) {
+            mFlashlightController.dump(fd, pw, args);
         }
     }
 
