@@ -145,6 +145,7 @@ import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
 import com.android.internal.statusbar.IStatusBarService;
 import com.android.internal.statusbar.NotificationVisibility;
 import com.android.internal.statusbar.StatusBarIcon;
+import com.android.internal.util.nitrogen.NitrogenUtils;
 import com.android.internal.widget.LockPatternUtils;
 import com.android.internal.widget.MessagingGroup;
 import com.android.internal.widget.MessagingMessage;
@@ -1149,6 +1150,7 @@ public class StatusBar extends SystemUI implements DemoMode, TunerService.Tunabl
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         filter.addAction(DevicePolicyManager.ACTION_SHOW_DEVICE_MONITORING_DIALOG);
         filter.addAction("android.intent.action.SCREEN_CAMERA_GESTURE");
+        filter.addAction(NitrogenUtils.ACTION_DISMISS_KEYGUARD);
         context.registerReceiverAsUser(mBroadcastReceiver, UserHandle.ALL, filter, null, null);
 
         IntentFilter demoFilter = new IntentFilter();
@@ -3329,6 +3331,12 @@ public class StatusBar extends SystemUI implements DemoMode, TunerService.Tunabl
             else if (DevicePolicyManager.ACTION_SHOW_DEVICE_MONITORING_DIALOG.equals(action)) {
                 mQSPanel.showDeviceMonitoringDialog();
             }
+            else if (NitrogenUtils.ACTION_DISMISS_KEYGUARD.equals(action)) {
+                if (intent.hasExtra(NitrogenUtils.DISMISS_KEYGUARD_EXTRA_INTENT)) {
+                    Intent launchIntent = (Intent) intent.getParcelableExtra(NitrogenUtils.DISMISS_KEYGUARD_EXTRA_INTENT);
+                    startActivityDismissingKeyguard(launchIntent, true, true);
+                }
+             }
             else if ("android.intent.action.SCREEN_CAMERA_GESTURE".equals(action)) {
                 boolean userSetupComplete = Settings.Secure.getInt(mContext.getContentResolver(),
                         Settings.Secure.USER_SETUP_COMPLETE, 0) != 0;
