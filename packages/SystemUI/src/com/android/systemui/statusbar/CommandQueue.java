@@ -569,6 +569,7 @@ public class CommandQueue extends IStatusBar.Stub {
         synchronized (mLock) {
             mHandler.obtainMessage(MSG_HIDE_IN_DISPLAY_FINGERPRINT_VIEW).sendToTarget();
         }
+   }
 
    @Override
     public void toggleCameraFlash() {
