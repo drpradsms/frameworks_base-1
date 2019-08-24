@@ -275,7 +275,6 @@ import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.logging.MetricsLogger;
 import com.android.internal.logging.nano.MetricsProto;
-import com.android.internal.os.DeviceKeyHandler;
 import com.android.internal.os.VolumeKeyHandler;
 import com.android.internal.policy.IKeyguardDismissCallback;
 import com.android.internal.policy.IShortcutService;
@@ -306,11 +305,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
 import java.util.List;
-
-import dalvik.system.PathClassLoader;
 
 import com.android.internal.util.custom.NavbarUtils;
 
@@ -885,7 +880,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private final MutableBoolean mTmpBoolean = new MutableBoolean(false);
 
     private boolean mAodShowing;
-    private final List<DeviceKeyHandler> mDeviceKeyHandlers = new ArrayList<>();
     private VolumeKeyHandler mVolumeKeyHandler;
 
     private static final int MSG_ENABLE_POINTER_LOCATION = 1;
@@ -2625,28 +2619,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     }
                 });
         mScreenshotHelper = new ScreenshotHelper(mContext);
-
-        final Resources res = mContext.getResources();
-        final String[] deviceKeyHandlerLibs = res.getStringArray(
-                com.android.internal.R.array.config_deviceKeyHandlerLibs);
-        final String[] deviceKeyHandlerClasses = res.getStringArray(
-                com.android.internal.R.array.config_deviceKeyHandlerClasses);
-
-        for (int i = 0;
-                i < deviceKeyHandlerLibs.length && i < deviceKeyHandlerClasses.length; i++) {
-            try {
-                PathClassLoader loader = new PathClassLoader(
-                        deviceKeyHandlerLibs[i], getClass().getClassLoader());
-                Class<?> klass = loader.loadClass(deviceKeyHandlerClasses[i]);
-                Constructor<?> constructor = klass.getConstructor(Context.class);
-                mDeviceKeyHandlers.add((DeviceKeyHandler) constructor.newInstance(mContext));
-            } catch (Exception e) {
-                Slog.w(TAG, "Could not instantiate device key handler "
-                        + deviceKeyHandlerLibs[i] + " from class "
-                        + deviceKeyHandlerClasses[i], e);
-            }
-        }
-        if (DEBUG) Slog.d(TAG, "" + mDeviceKeyHandlers.size() + " device key handlers loaded");
 
         // Register for torch off events
         BroadcastReceiver torchReceiver = new BroadcastReceiver() {
@@ -4646,11 +4618,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             return -1;
         }
 
-        // Specific device key handling
-        if (dispatchKeyToKeyHandlers(event)) {
-            return -1;
-        }
-
         if (down) {
             long shortcutCode = keyCode;
             if (event.isCtrlPressed()) {
@@ -4756,6 +4723,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
     }
 
+<<<<<<< HEAD
     private boolean dispatchKeyToKeyHandlers(KeyEvent event) {
         for (DeviceKeyHandler handler : mDeviceKeyHandlers) {
             try {
@@ -4789,6 +4757,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         return false;
     }
 
+=======
+>>>>>>> parent of f095f259a35... Support for device specific key handlers
     /** {@inheritDoc} */
     @Override
     public KeyEvent dispatchUnhandledKey(WindowState win, KeyEvent event, int policyFlags) {
@@ -6791,11 +6761,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 && (policyFlags & WindowManagerPolicy.FLAG_VIRTUAL) != 0
                 && (!isNavBarVirtKey || mNavBarVirtualKeyHapticFeedbackEnabled)
                 && event.getRepeatCount() == 0;
-
-        // Specific device key handling
-        if (dispatchKeyToKeyHandlers(event)) {
-            return 0;
-        }
 
         // Handle special keys.
         switch (keyCode) {
