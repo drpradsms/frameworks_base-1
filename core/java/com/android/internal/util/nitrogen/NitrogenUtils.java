@@ -31,7 +31,7 @@ import android.os.UserHandle;
 import android.view.InputDevice;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
-
+import android.content.pm.PackageManager.NameNotFoundException;
 import com.android.internal.statusbar.IStatusBarService;
 
 /**
