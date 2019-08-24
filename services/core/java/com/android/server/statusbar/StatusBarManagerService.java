@@ -613,9 +613,10 @@ public class StatusBarManagerService extends IStatusBarService.Stub {
             try {
                 mBar.hideInDisplayFingerprintView();
             } catch (RemoteException ex) {
-                // do nothing
-    }
-
+                   // do nothing
+           }
+       }
+  }
     @Override
     public void toggleCameraFlash() {
         if (mBar != null) {
